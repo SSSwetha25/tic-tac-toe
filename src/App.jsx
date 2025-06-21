@@ -1,38 +1,52 @@
 import { useState } from "react";
+import "./App.css";
 
 function App() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
-  function handleClick(index) {
-    if (squares[index] || calculateWinner(squares)) return;
+  const winner = calculateWinner(squares);
+  const isDraw = !winner && squares.every(Boolean);
 
+  const status = winner
+    ? `🏆 Winner: ${winner}`
+    : isDraw
+    ? "🤝 It's a draw!"
+    : `Next turn: ${xIsNext ? "X" : "O"}`;
+
+  function handleClick(index) {
+    if (squares[index] || winner) return;
     const nextSquares = squares.slice();
     nextSquares[index] = xIsNext ? "X" : "O";
     setSquares(nextSquares);
     setXIsNext(!xIsNext);
   }
 
-  const winner = calculateWinner(squares);
-  let status = winner
-    ? `Winner: ${winner}`
-    : `Next player: ${xIsNext ? "X" : "O"}`;
+  function resetGame() {
+    setSquares(Array(9).fill(null));
+    setXIsNext(true);
+  }
 
   return (
-    <div className="p-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4">Tic Tac Toe</h1>
-      <div className="grid grid-cols-3 gap-1">
+    <div className="container">
+      <h1 className="title">Tic Tac Toe</h1>
+      <div className="status">{status}</div>
+
+      <div className="board">
         {squares.map((value, index) => (
           <button
             key={index}
-            className="w-20 h-20 text-xl border bg-white"
+            className="square"
             onClick={() => handleClick(index)}
           >
             {value}
           </button>
         ))}
       </div>
-      <p className="mt-4 text-lg">{status}</p>
+
+      <button className="restart-button" onClick={resetGame}>
+        Restart Game
+      </button>
     </div>
   );
 }
@@ -50,7 +64,7 @@ function calculateWinner(squares) {
   ];
 
   for (let [a, b, c] of lines) {
-    if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
   }
